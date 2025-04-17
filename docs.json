@@ -1,102 +1,79 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "name": "Givzey Technical Documentation",
   "theme": "mint",
-  "name": "Mint Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "logo": {
+    "light": "/logo/givzey-logo.png",
+    "dark": "/logo/givzey-logo.png"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/givzey-logo.png",
+  "colors": {
+    "primary": "#FF6B00",
+    "light": "#FF8533",
+    "dark": "#CC5500"
+  },
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
-          }
+        "group": "Overview",
+        "pages": ["index"]
+      },
+      {
+        "group": "Platform Architecture",
+        "pages": [
+          "software-frameworks-overview",
+          "code-modularity"
         ]
       },
       {
-        "tab": "API Reference",
-        "groups": [
+        "group": "Infrastructure",
+        "pages": [
+          "hosting-data-center-overview",
+          "network-architecture-overview",
+          "system-redundancy-scalability",
+          "givzey-databases"
+        ]
+      },
+      {
+        "group": "Operations",
+        "pages": [
+          "monitoring-tools-alerts"
+        ]
+      },
+      {
+        "group": "AI/ML Platform",
+        "pages": [
           {
-            "group": "API Documentation",
+            "group": "Core ML Systems",
             "pages": [
-              "api-reference/introduction"
+              "ml-algorithms",
+              "ml-data-pipeline",
+              "ml-performance-monitoring"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "LLM Infrastructure",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "llm-data-ingestion",
+              "human-in-loop-process"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+  "footerSocials": {
+    "website": "https://givzey.com"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+  "feedback": {
+    "suggestEdit": false,
+    "raiseIssue": false
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+  "search": {
+    "prompt": "Search Givzey technical documentation..."
+  },
+  "openapi": {
+    "path": "/openapi.json"
+  },
+  "defaultTab": "Documentation"
 }

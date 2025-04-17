@@ -1,0 +1,185 @@
+## **Network Architecture Overview**
+
+## 
+
+* **Cloud Provider**: AWS (Amazon Web Services)
+
+* **Primary Region**: `us-east-1` (N. Virginia)
+
+* **Availability Zones**: Primarily `us-east-1a`, `us-east-1b`, and `us-east-1d`
+
+* **Hosting Model**: IaaS using EC2 instances  
+* [View Diagram](https://www.mermaidchart.com/raw/cee059d6-9be2-47d7-9e68-f0928cac545a?theme=light&version=v0.1&format=svg)
+
+---
+
+## **2\. Physical/Logical Access Controls**
+
+### **2.1 IAM User Management**
+
+* **Number of IAM Users**: 10 total
+
+  **2.2 Network Security**  
+* **Security Groups** (principle of least privilege):
+
+  * Bastion hosts: `givzey-bastion`, `version2-bastion`
+
+  * Web application access: `givzey-public-web`, `version2-public-web`
+
+  * Database access: `givzey-prod-db`, `version2-prod-db, givzey-dev-db, version2-dev-db`  
+  *   
+  * Load balancer: `givzey-alb-sg`
+
+* **Instance Access**:
+
+  * SSH restricted to bastion hosts
+
+  * Dedicated bastion hosts per environment (prod/dev)
+
+  * Separate security groups for private vs. public instances
+
+---
+
+## **3\. Network Architecture Overview**
+
+### **3.1 VPC Architecture**
+
+* **Two Main VPCs**:
+
+  1. **Givzey VPC**
+
+  2. **Version2 VPC**
+
+### **3.2 Subnet Design**
+
+* **Public Subnets**: For internet-facing resources
+
+* **Private Subnets**: For application servers
+
+* **Dedicated RDS Subnets**: Private subnets for database instances
+
+* **Special-Purpose Subnets**: For SFTP services
+
+### **3.3 Load Balancing**
+
+* **Application Load Balancer (Givzey)**:
+
+  * Public, internet-facing
+
+  * Multi-AZ deployment
+
+  * Connected to Givzey VPC
+
+### **3.4 Multi-Environment Setup**
+
+* **Production Environment**: Instances tagged/named with `prod`
+
+* **Development Environment**: Instances tagged/named with `dev`
+
+  
+
+### **3.5 Application Components**
+
+* **Web Servers** (web instances)
+
+* **Application Servers** (codebase instances)
+
+* **Bastion Hosts** (for secure access)
+
+* **FTP Servers** (for file transfer)
+
+* **Database Servers** (RDS instances)
+
+---
+
+## **4\. LAN (Local Area Network) Architecture**
+
+### **4.1 VPC Structure**
+
+* **Isolated VPCs**: Two non-overlapping CIDR blocks
+
+  * Givzey VPC
+
+  * Version2 VPC
+
+### **4.2 Subnet Organization**
+
+* **Multi-Tier Architecture**:
+
+  * Public subnets (internet-facing)
+
+  * Private application subnets (internal-only)
+
+  * Database subnets (RDS-specific)
+
+  * Special-purpose subnets (e.g., FTP services)
+
+### **4.3 Security Segmentation**
+
+* **Security Groups**: Granular service-based access control
+
+* **Network ACLs**: Default rules in place for subnet-level protection
+
+* **Bastion Hosts**: Sole entry points into private subnets
+
+### **4.4 Routing Within VPCs**
+
+* **Local Routing**: Traffic within each VPC’s CIDR block
+
+* **Custom Route Tables**:
+
+  * Private subnets direct outbound internet traffic via NAT gateways
+
+  * Public subnets direct internet traffic via internet gateways
+
+### **4.5 LAN Connectivity**
+
+* **No VPC Peering** between the two VPCs
+
+* **Instance-to-Instance Communication**: Internal VPC network
+
+* **Cross-Service Communication**: Governed by security group rules
+
+---
+
+## **5\. WAN (Wide Area Network) Architecture**
+
+### **5.1 Internet Connectivity**
+
+* **Internet Gateways (IGWs)**:
+
+  * Givzey VPC  
+  * Version2 VPC)
+
+### **5.2 NAT Gateways**
+
+* **Two NAT Gateways** (for outbound internet traffic from private subnets):
+
+  * Givzey VPV
+
+  * Version2 VPC
+
+### **5.3 External Connectivity**
+
+* **No Direct Connect Links** to on-premises
+
+* **No VPN Connections** to external networks
+
+* **No Transit Gateways** configured
+
+### **5.4 Load Balancing**
+
+* **Givzey ALB**: Public internet-facing load balancer, multi-AZ
+
+### **5.5 Edge Services**
+
+* **VPC Endpoint**: For secure access to AWS services (no public internet traversal)
+
+* **FTPS Service**: For external file transfers
+
+### **5.6 Public IP Addressing**
+
+* **Elastic IPs** associated with three NAT gateways:
+
+* **Public DNS**: Application Load Balancer
+

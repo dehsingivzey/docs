@@ -1,0 +1,103 @@
+# **Human‑in‑the‑Loop Process Documentation**
+
+## **1\. Introduction**
+
+All human‑in‑the‑loop (HITL) workflows run through the Version2 platform by the V2 Operations team. This document describes both what happens **today** and what will happen **in the future**, across:
+
+1. **LLM Prompt System**  
+2. **Organizational Knowledge Base \+ RAG**  
+3. **Move Management Engine**  
+4. **Data Synthesis & Simulation**
+
+## **2\. Use‑Case Workflows**
+
+### **2.1 LLM Prompt System**
+
+#### **Current State**
+
+1. **Prompt Generation & Review**  
+   * Claude 3.7 (via Bedrock) generates draft messages automatically scheduled for review.  
+   * V2 Operations opens each draft in the message editor, refines tone and content, then sends/schedules it.  
+2. **Donor Compliance Check**  
+   * As part of onboarding each donor record, V2 Operations verifies the donor’s country is the U.S. for data‑quality and compliance.
+
+#### **Future State**
+
+1. **Feedback Capture & LLMOps Integration**  
+   * Record revision flags, time-to-approval, and reviewer comments in the database.  
+   * Build an LLMOps dashboard to surface diff‑alerts when edits exceed thresholds.  
+2. **Prompt Management System**  
+   * Introduce a structured prompt management interface where prompt templates, guardrails, and persona logic can be versioned, reviewed, and approved by CS and ML teams.  
+   * Enable per-organization customization of tone, prohibited phrases, and approved content blocks (e.g., calls-to-action, program descriptions).  
+   * Implement audit trails for prompt changes, with diff views and impact tracking across message generations.  
+3. **Automated Compliance Field**  
+   * Add a `donor_country` field upstream; enforce compliance checks in the ingestion pipeline, not just post‑hoc.
+
+### **2.2 Organizational Knowledge Base \+ RAG**
+
+#### **Current State**
+
+1. **Step 1: Source Selection GUI**   
+   * A planned interface where CS can register URLs, social media accounts, and email inbox feeds to crawl.  
+2. **Step 2: Ingestion & Staging**  
+   * Scraped documents land in a staging area
+
+#### **Future State**
+
+1. **Content QA Workflow**  
+   * V2 Operations will tag document types, verify metadata (e.g., event dates), and correct parsing errors in an enhanced UI.  
+   * Corrections and QA statuses feed back into training parsers and retrieval models.  
+2. **RAG Evaluation**  
+   * Integrate a HumanLoop‑style framework for snippet relevance judgments and automated logging of retrieval successes/failures.
+
+### **2.3 Move Management Engine**
+
+#### **Current State**
+
+1. **Manual Conversation Annotation**  
+   * V2 Operations manually assigns “Move” categories (e.g., MOVE‑CULTIVATION‑ENGAGE) for each new conversation.  
+   * These labels are used offline to train R\&D models.  
+2. **Donor Compliance Check**  
+   * As above, new donor records are validated for U.S. residency before being included in any ML pipeline. Donors with non-US residency are not used for training any ML model.
+
+#### **Future State**
+
+1. **Interactive Annotation UI**  
+   * Reviewers will see model predictions, select or override categories, and log override reasons via dropdowns.  
+   * All prediction vs. final‑label data (with timestamps and reviewer IDs) will feed directly into online retraining pipelines.  
+2. **Rule‑Refinement Feedback**  
+   * Capture rule‑triggered overrides (e.g., birthday, recent gift) to refine the post‑prediction rules engine.
+
+### **2.4 Data Synthesis & Simulation**
+
+#### **Current State**
+
+* **No HITL Interaction**  
+  * Synthetic donor cohorts are generated entirely offline; V2 Operations does not yet review or validate them.
+
+#### **Future State**
+
+1. **Sample Validation Workflow**  
+   * V2 Operations will inspect synthetic cohorts in the platform, flag implausible profiles, and log validation notes.  
+   * Validation logs and parameter‑update requests will drive iterative improvements to the synthesizer.  
+2. **Compliance Tagging**  
+   * Ensure synthetic donors include a `donor_country` attribute consistent with compliance rules, mirroring real‑data checks.
+
+## **3\. Tools & Collaboration**
+
+* **Version2 Platform (Today):**  
+  * Basic message‑editor, conversation labels, and document‑staging views.  
+* **HITL Dashboard (Roadmap):**  
+  * A unified GUI for batch approvals, source registration, annotation overrides, and QA corrections across all use cases.  
+* **Shared Backlog:**  
+  * Ongoing collaboration via weekly syncs; ML Engineering and V2 Operations jointly prioritize HITL feature requests, data‑quality issues, and UI enhancements.
+
+## **4\. Roadmap Summary**
+
+| Quarter | Milestone |
+| :---- | :---- |
+| **Q2 2025** | Launch source‑selection GUI and basic HITL dashboard for LLM and Move annotation. |
+| **Q3 2025** | Enable structured feedback capture (revision flags, override reasons, QA statuses); launch prompt management system for versioned templates and organization‑specific customization. |
+| **Q4 2025** | Integrate compliance field (`donor_country`) upstream; pilot RAG QA workflows with HumanLoop or similar framework. |
+| **Q1 2026** | Formalize full feedback loops into automated retraining and rule‑refinement pipelines. |
+

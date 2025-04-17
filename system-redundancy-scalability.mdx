@@ -1,0 +1,91 @@
+# System Redundancy and Scalability
+
+## Database Redundancy
+
+Multi-AZ Database Deployments:
+
+* Several key Aurora PostgreSQL clusters are configured with Multi-AZ deployments:  
+* ftp-cluster: MultiAZ \= True  
+* givzey-production-rr-cluster: MultiAZ \= True  
+* version2-dev: MultiAZ \= True  
+* version2-prod-clstr: MultiAZ \= True  
+* Each production database has reader replicas across multiple availability zones, for example:  
+* Primary: version2-prod-clstr-instance-1 (us-east-1c)  
+* Replica: version2-prod-clstr-instance-1-us-east-1d (us-east-1d)  
+  Backup and Recovery Capabilities:  
+* All database clusters have automated backups enabled with 30-day retention periods  
+* Daily automated snapshots are taken during defined backup windows  
+* Point-in-time recovery is possible with EarliestRestorableTime and LatestRestorableTime values  
+* Dedicated backup-cluster for additional recovery options  
+  Database Protection Features:  
+* Deletion protection enabled on critical databases  
+* Storage encryption enabled across all databases  
+* CloudWatch logs exported for monitoring and troubleshooting
+
+## Compute Redundancy
+
+Multi-AZ EC2 Deployment:
+
+* Production instances strategically distributed across multiple availability zones:  
+* us-east-1a: Contains version2 production web and application servers  
+* us-east-1b: Hosts bastion hosts and development servers  
+* us-east-1d: Hosts givzey production application and web servers  
+* Critical production applications have multiple identical instances across AZs  
+  Bastion Host Redundancy:  
+* Multiple bastion hosts for secure access:  
+* givzey-bastion in us-east-1b  
+* version2-bastion in us-east-1a  
+* gvzbastionhost in us-east-1b  
+* Auto Scaling Group configured for bastion hosts 
+
+  Web Tier Redundancy:
+
+* Multiple web servers for each application are running across AZs  
+* CPU utilization alarms configured to alert on high usage (e.g., CPU-Utilization-i-0813ad2c727ec4750)
+
+## Load Balancing and Failover
+
+1. Application Load Balancer:  
+* Givzey ALB is internet-facing and deployed across 4 availability zones:  
+* us-east-1a  
+* Us-east-1b  
+* us-east-1c   
+* us-east-1d   
+* Health checks are configured with:  
+* 30-second intervals  
+* 5-second timeout  
+* HTTP health check path  
+* 5 healthy threshold / 2 unhealthy threshold  
+1. Target Groups:  
+* Multiple target groups for different applications:  
+* Givzey (port 443, HTTPS)  
+* givzey-dev-tg (port 5000, HTTP)  
+* givzey-dev-tg-ip (port 5000, HTTP)  
+* givzey-tg-bd64ba64 (port 5000, HTTP)  
+1. DNS Failover:  
+* Multiple Route53 hosted zones for domain management  
+* Main application zones:  
+* givzey.com (46 records)  
+* version2ai.com (32 records)
+
+## Scalability Features
+
+1. Auto Scaling Configuration:  
+* Auto Scaling Group configured for bastion hosts with:  
+* Min size: 0  
+* Max size: 1  
+* Desired capacity: 0 (on-demand launching)  
+* Launch configuration: bastion-launch-config  
+* Multi-AZ capability: Configured for us-east-1b and us-east-1d  
+* VPC Zone Identifier: subnet-0fcc23de0638c5937,subnet-05146df8ff2fc893b  
+1. RDS Aurora Scalability:  
+* Reader endpoints for read scaling  
+* Performance monitoring enabled for production clusters:  
+* Performance insights enabled with 7-day retention  
+* Enhanced monitoring with 60-second intervals  
+1. Instance Types for Vertical Scaling:  
+* Various instance types used for different workloads:  
+* Web servers: t2.micro, t2.small, t3.small  
+* Application servers: t2.medium, t3.medium, t3.large, t2.xlarge  
+* Development servers: t2.2xlarge, t3.large
+

@@ -1,0 +1,123 @@
+# **Code Modularity and Maintainability**
+
+This document outlines our primary deployable applications, their purposes, and the processes we use to ensure maintainable code and smooth deployments.
+
+## **1\. Overview of Deployable Applications**
+
+### **1.1 Version2**
+
+* **Type:** Flask-based monolithic web application with a React front end
+
+* **Deployment Environments:** Development and Production
+
+* **Purpose:**
+
+  * Primarily serves as an AI-driven platform for analyzing data, handling user interactions, and delivering AI-related features (e.g., conversation management)  
+  * Exposes a REST API for internal usage as well as external integration points.
+
+### **1.2 Gift Agreement Platform**
+
+* **Type:** Flask-based monolithic web application with a React front end
+
+* **Deployment Environments:** Development and Production
+
+* **Purpose:**
+
+  * Focused on donor and fundraising workflows, offering UI for organizations, donors, and fundraisers.
+
+### **1.3 Data-Ingestion Tool (Web Scraper)**
+
+* **Type:** Standalone service
+
+* **Deployment Environments:** Local development via Localstack. Deployments and CI/CD via Pulumi
+
+* **Purpose:**
+
+  * Periodically scrapes or fetches data from external websites.
+
+  * Processes the data, storing results into data stores (S3, DynamoDB).
+
+  * Triggered AWS Lambda events.
+
+---
+
+## **2\. Infrastructure & Deployment Strategy**
+
+1. **Infrastructure as Code (Pulumi)**
+
+   * We have begun to use Pulumi to define and manage all AWS resources required by our applications.
+
+2. **Environments**  
+   * **Local Development Environments**: Used for daily coding, testing, and QA. May have partial feature flags enabled and mock services for external integrations.  
+   * **Remote Development Environments**: testing, and QA. Staging before production releases
+
+   * **Production Environments**: Stable releases along with feature flagging 
+
+---
+
+## **3\. Code Modularity & Maintainability**
+
+### **3.1 Monolithic Codebases with Internal Structure**
+
+Although our applications are deployed as **monolithic** applications, we maintain a clear internal structure to improve maintainability:
+
+* **Layered Architecture**:
+
+  * **Controllers (Flask routes)**: Define HTTP endpoints, handle request/response, delegate logic to services.
+
+  * **Service/Manager Layer**: Encapsulates business logic, validation, data aggregation, and external service calls.
+
+  * **Data Access Layer**: Uses SQLAlchemy for database models and queries
+
+* **Feature Flags**:
+
+  * We use feature flags or environment-based configuration to selectively enable new functionality, reducing risk when rolling out major changes.
+
+* **Documentation & Coding Standards**:
+
+  * Python code follows PEP 8 and is automatically formatted with Black.
+
+  * We maintain architectural diagrams and docstrings to help developers navigate the monolith.
+
+### **3.2 Data-Ingestion Tool**
+
+* **Purpose-Built Module**:
+
+  * Designed as a separate codebase to scrape websites, parse data, and push results to Version2.
+
+* **Triggering & Scheduling**:
+
+  * Triggered via api call from Version2 web app
+
+  * Deploys independently via Pulumi so that failures or changes in scraping logic don’t affect the main applications.
+
+### **3.3 Testing & Code Coverage**
+
+* **Unit and Integration Tests**:
+
+  * Written using Python’s `unittest` framework, with coverage reporting powered by the `coverage` library.
+
+* **Continuous Integration**:
+
+  * Every merge request runs automated tests, coverage checks, linting, and security scans.
+
+* **Maintainability Metrics**:
+
+  * We track code coverage trends and code smells (via linting or static analysis), resolving issues that degrade maintainability.
+
+---
+
+## **4\. Scalability & Future Modularity**
+
+1. **Microservice Transition**
+
+   * While we currently deploy monoliths, each codebase is structured in a way that can be modularized or split into microservices when future scale demands it. 
+
+   * Shared modules (e.g., authentication, data ingestion) could be extracted gradually.
+
+2. **Infrastructure & Logging**
+
+   * All deployable apps integrate with AWS CloudWatch for centralized logging and monitoring.
+
+   * AWS IAM roles ensure secure resource access. If or when we break out services, these roles and logs will remain easy to manage.
+

@@ -1,0 +1,128 @@
+# **ML Performance Monitoring Documentation**
+
+## **1\. Introduction**
+
+Performance monitoring ensures our AI systems remain accurate, reliable, fair, and aligned with business goals. This document outlines:
+
+* **Current‐state** logging, metrics, and review processes  
+* **Future‐state** tooling, dashboards, and automated alerts  
+* **Use‐case specifics** for both LLM and predictive model pipelines  
+* **Business and fairness metrics** alongside technical evaluation metrics
+
+## **2\. LLMOps Monitoring**
+
+### **2.1 Current State**
+
+#### **2.1.1 Logging & Audit Trail**
+
+* **Prompt Storage:** All generated LLM prompts (Claude 3.7 via Bedrock) are persisted in the core database.  
+* **Message Diffing:** We capture final sent messages (post–HITL edits) to enable offline diff analyses against original prompts.  
+* **Basic Metrics:**  
+  * **Volume:** Number of prompts generated per day/week.  
+  * **Revision Count:** \# of messages edited by V2 Operations before send.  
+  * **Revision Time:** Average time from generation to send.
+
+#### **2.1.2 Quality & Accuracy**
+
+* **Hallucination Rate (Manual):** Periodic audits of a sample of messages to flag factual errors.  
+* **Template Compliance:** Spot checks on system‐prompt structure adherence.
+
+### **2.2 Future State**
+
+#### **2.1.1 Business Metrics**
+
+* **Edit Overhead:** % of messages requiring non‐trivial rewrites.  
+* **Turnaround Time:** Time from LLM generation to final send.  
+* **Operational Load:** Volume of HITL reviews triggered.
+
+#### **2.1.2 Fairness Monitoring**
+
+* **Channel Equity:** Track suggested SMS vs email rates across donor demographics to detect bias.  
+* **Tone Consistency:** Manual spot‐checks for deviations in persona guardrails (e.g., overly solicitous language).
+
+#### **2.1.3 RAG‐Specific Scoping**
+
+* **Context Retrieval Logs:** Track which knowledge‐base documents are fetched per prompt (once RAG pilot begins).  
+* **Relevance Judgments:** Early manual ratings of retrieved snippets for contextual fit.
+
+#### **2.2.4 LLMOps Platform & Dashboards**
+
+* **Real‑Time Monitoring:** Integrate with a dedicated LLMOps tool (e.g., Weights & Biases or an in‑house dashboard) to display prompt → response metrics, latency, error rates.  
+* **Automated Diffing:** Build pipelines to surface significant divergences between generated prompts and final sent content, triggering alerts when edits exceed thresholds.  
+* **Alerting:** Set SLA‑based alerts for high revision rates, latency spikes, or hallucination signals.
+
+#### **2.2.5 Collaborative Evaluation Frameworks**
+
+* **HumanLoop (or equivalent):** Pilot integrated human‑in‑the‑loop evaluation workflows for RAG retrieval relevance and LLM output quality, feeding back structured labels.
+
+#### **2.2.6 Fairness & Bias Detection**
+
+* **Automated Fairness Metrics:** Embed bias checks (e.g., demographic parity for channel recommendations) into monitoring dashboards.  
+* **Continuous Audits:** Schedule regular fairness audits leveraging tools like AI Fairness 360\.
+
+## **3\. MLOps Monitoring for Predictive Models**
+
+### **3.1 Current State**
+
+#### **3.1.1 Offline Evaluation**
+
+* **Notebook‐Based Metrics:**  
+  * **Move Management Engine:** tracks accuracy, macro F1 for first/next action, MAE/RMSE/R² for time‑to‑next conversation.  
+  * **Data Synthesis:** evaluates synthetic vs real data distribution fidelity (e.g., KS‑tests on key features).  
+* **No Production Monitoring:** R\&D models have no live drift or performance tracking; model artifacts are stored but not instrumented.
+
+#### **3.1.2 Business & Fairness Metrics**
+
+* **Planned Metrics:**  
+  * % of donor messages recommended by ML requiring manual override.  
+  * Time saved per conversation vs fully manual process.  
+* **Early Fairness Checks:** Manual reviews of prediction disparities by donor segment (e.g., giving history, geography).
+
+### **3.2 Future State**
+
+#### **3.2.1 Automated Model Monitoring**
+
+* **SageMaker Model Monitor (or equivalent):**  
+  * **Data Drift Detection:** Monitor input feature distributions in real time.  
+  * **Prediction Drift:** Track shifts in model output distributions (e.g., action class frequencies).  
+  * **Alerting:** Automated alerts when drift exceeds thresholds or performance degrades.
+
+#### **3.2.2 Dashboards & Reporting**
+
+* **Centralized MLOps Dashboard:** Aggregate metrics for all deployed endpoints: accuracy, F1, MAE/RMSE/R², inference latency, cost per call.  
+* **Business KPIs:** Visualize manual override rates, model‑driven send volumes, and comparative response uplifts (matched vs mismatched channels).
+
+#### **3.2.3 Feedback Loop & Automated Retraining**
+
+* **Label Capture:** Integrate post‑send outcomes (donor responses, override reasons) into a labeled dataset.  
+* **Trigger Retraining:** Define retraining pipelines (e.g., monthly) when performance falls below SLAs or drift is detected.  
+* **Validation Gates:** Require new model versions to meet both technical and business metrics before promotion.
+
+#### **3.2.4 Fairness & Compliance**
+
+* **Automated Fairness Scans:** Incorporate fairness tests (e.g., equal opportunity metrics) into CI pipelines.  
+* **Explainability Monitoring:** Generate periodic SHAP/LIME summaries for model decisions and surface through dashboards.
+
+## **4\. Use‑Case Alignment**
+
+| Use Case | Current Monitoring | Planned Enhancements |
+| ----- | ----- | ----- |
+| **LLM Prompt System** | Prompt logs, manual diffs | Business metrics, real‑time LLMOps dashboards, automated diff/alerts |
+| **Org KB \+ RAG** | Ingestion logs, manual relevance checks | RAG retrieval logging, HumanLoop evaluation |
+| **Move Management Engine** | Offline F1/R², manual drift checks | SageMaker Monitor, business KPI dashboards |
+| **Data Synthesis & Simulation** | Offline fidelity metrics, manual audits | Automated distribution drift alerts, simulation dashboards |
+
+## **5\. Roadmap & Implementation Plan**
+
+| Quarter | Milestone |
+| ----- | ----- |
+| **Q3 2025** | Prototype LLMOps dashboard; integrate prompt diffing. |
+| **Q4 2025** | Pilot RAG evaluation with HumanLoop; deploy initial MLOps monitors. |
+| **Q1 2026** | Roll out automated fairness checks; establish retraining pipelines. |
+| **Q2 2026** | Complete end‑to‑end monitoring across all use cases; alert and governance integration. |
+
+**Key Tools & Technologies:**
+
+* **LLMOps:** Weights & Biases / custom dashboard, CloudWatch, Bedrock monitoring APIs  
+* **MLOps:** SageMaker Model Monitor, GitHub Actions, Pulumi, AI Fairness 360, SHAP/LIME libraries  
+* **Evaluation Frameworks:** HumanLoop (or similar), internal review dashboards

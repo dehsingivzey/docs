@@ -1,0 +1,285 @@
+# **Technology Architecture & Frameworks Overview**
+
+This document provides an overview of our software architecture with the main frameworks and libraries used across the data access layer, web (MVC) layer, security components, and other major server-side elements. We operate Python web applications built on **Flask** with a **React** frontend, integrated with various **AWS** services and third-party APIs.
+
+---
+
+## **1\. Data Access Layer**
+
+Our primary interaction with relational data is through the **SQLAlchemy** ORM. Below are the key components involved in data access:
+
+* **SQLAlchemy (Open Source)**
+
+  * **Type:** ORM Framework
+
+  * **Purpose:** Primary database access layer for PostgreSQL
+
+  * **Notes:** Models are defined as Python classes; queries generated via SQLAlchemy methods.
+
+* **SQLAlchemy-Continuum (Open Source)**
+
+  * **Purpose:** Database record versioning
+
+  * **Notes:** Allows auditing and rollbacks of data changes over time.
+
+* **Flask-SQLAlchemy (Open Source)**
+
+  * **Purpose:** Integration between Flask and SQLAlchemy
+
+  * **Notes:** Simplifies ORM configuration within the Flask app.
+
+* **Alembic \+ Flask-Migrate (Open Source)**
+
+  * **Purpose:** Database schema migrations
+
+  * **Notes:** Alembic manages migration scripts; Flask-Migrate provides Flask commands for migration.
+
+* **Psycopg2 (Open Source)**
+
+  * **Purpose:** PostgreSQL driver
+
+  * **Notes:** Underlying adapter for raw SQL access to PostgreSQL databases.
+
+* **Boto3 (S3/DynamoDB)**
+
+  * **Purpose:** AWS SDK for data access on S3 and DynamoDB
+
+  * **Notes:** Used for storing files in S3 and for limited ephemeral data in DynamoDB.
+
+* **Redis-py (Open Source)**
+
+  * **Purpose:** Redis client for Python
+
+  * **Notes:** Used in conjunction with Celery for message queuing and caching.
+
+### **Architecture Notes for Data Access**
+
+1. **Models** are defined as Python classes (ORM).
+
+2. **Migrations** are tracked via Alembic scripts
+
+3. **AWS S3** is used for file storage. **DynamoDB** is used occasionally for specific job-tracking
+
+4. **Redis** underpins Celery’s messaging for background tasks.
+
+---
+
+## **2\. MVC (Model-View-Controller) Model**
+
+While we follow a loosely **MVC-style** structure, we actually use a **separation-of-concerns** approach where Flask handles the “Controller,” React handles the “View,” and SQLAlchemy handles the “Model.” We do minimal server-side HTML rendering, relying instead on a **React SPA** for the front end.
+
+### **3.1 Server-Side Components**
+
+* **Flask (Open Source)**
+
+  * **Purpose:** Web framework for routing and controllers
+
+  * **Notes:** Defines RESTful endpoints for CRUD operations, authentication, and business logic.
+
+* **Flask-WTF, Flask-Login, Flask-JWT-Extended, Flask-CORS**
+
+  * **Purpose:** Extensions for form handling, user sessions, JWT auth, CORS
+
+  * **Notes:** Each extension is integrated at the Flask application level to handle cross-cutting concerns.
+
+* **Jinja2 (Open Source)**
+
+  * **Purpose:** Template engine
+
+  * **Notes:** Primarily used for minimal server-rendered pages or emails and some legacy non-customer facing ui, since most UI is React.
+
+* **Marshmallow (Open Source)**
+
+  * **Purpose:** Serialization/Deserialization
+
+  * **Notes:** Converts Python objects to JSON and vice versa for API responses.
+
+### **3.2 Client-Side (View Layer)**
+
+* **React (Open Source)**
+
+  * **Purpose:** Core UI library for the frontend
+
+  * **Notes:** Implements the “View” in MVC, communicating with Flask APIs.
+
+* **React Router, Redux \+ Redux Toolkit, Material UI, etc.**
+
+  * **Purpose:** Routing, state management, and UI components
+
+  * **Notes:** Provides a robust single-page application with well-organized user interactions.
+
+### **3.3 How MVC Translates in Our App**
+
+1. **Model**: SQLAlchemy (database models)
+
+2. **View**: React application, plus minimal Jinja2 usage
+
+3. **Controller**: Flask routes that handle requests and invoke domain logic in service classes
+
+This architecture ensures a clean separation of concerns: front end is client-side rendered, while back end provides a stateless RESTful API.
+
+---
+
+## **3\. Security & Other Major Server-Side Frameworks**
+
+### **4.1 Security & Authentication**
+
+* **Flask-JWT-Extended (Open Source)**
+
+  * **Purpose:** JWT token generation and validation
+
+  * **Notes:** Centralizes our user auth flows.
+
+* **Flask-Bcrypt (Open Source)**
+
+  * **Purpose:** Secure password hashing
+
+  * **Notes:** Ensures stored passwords are salted and hashed.
+
+* **AWS Secrets Manager (Commercial)**
+
+  * **Purpose:** Secure storage of API keys and credentials
+
+  * **Notes:** Rotates secrets and enforces least-privilege access via IAM roles.
+
+* **IAM Roles (Commercial)**
+
+  * **Purpose:** AWS authentication
+
+  * **Notes:** Used to manage permissions for EC2, Lambda, and other AWS resources.
+
+### **4.2 Background Processing & Messaging**
+
+* **Celery (Open Source)**
+
+  * **Purpose:** Task queue for background processing
+
+  * **Notes:** Manages async tasks like sending emails, data imports, or AI calls at scale.
+
+* **Redis (Open Source)**
+
+  * **Purpose:** Message broker (for Celery) and caching
+
+  * **Notes:** Communicates job status, handles ephemeral data.
+
+* **Kombu (Open Source)**
+
+  * **Purpose:** Messaging library underlying Celery
+
+  * **Notes:** Abstracts broker implementations.
+
+### **4.3 API & External Services**
+
+We integrate with multiple external services via official or custom SDKs:
+
+* **OpenAI SDK (Commercial)** – AI service integration
+
+* **AWS Bedrock SDK (Commercial)** – AWS-based AI model integration
+
+* **SendGrid (Commercial)** – Email delivery and tracking
+
+* **Twilio (Commercial)** – SMS message delivery
+
+* **Requests (Open Source)** – For making HTTP requests to external APIs  
+* **IgnitePost (Commercial)** \- Physical Mail Delivery  
+* **Synthesia (Commercial)** \- Avatar Video Generation
+
+### **4.4 Data Processing & Analytics**
+
+* **Pandas, NumPy, Matplotlib (Open Source)**
+
+  * **Purpose:** Data analysis, numerical computing, and visualizations
+
+  * **Notes:** Primarily for internal dashboards and data transformations and ML.
+
+---
+
+## **4\. DevOps & Infrastructure**
+
+* **Docker (Open Source)**
+
+  * **Purpose:** Containerization
+
+  * **Notes:** Each service is packaged in containers for consistency across environments.
+
+* **Gunicorn (Open Source)**
+
+  * **Purpose:** WSGI server for Python applications
+
+  * **Notes:** Production-grade server for Flask.
+
+* **AWS Services (Commercial)**
+
+  * **API Gateway:** Routes traffic to serverless or containerized backends
+
+  * **Lambda:** Handles serverless functions for asynchronous tasks or webhooks
+
+  * **CloudWatch:** Collects logs and metrics for monitoring
+
+  * **Watchtower (Open Source plugin):** Sends Python logs to CloudWatch
+
+  * **IAM, VPC, Auto Scaling, etc.:** Provide security, networking, and automated scaling
+
+---
+
+## **5\. Testing & Quality**
+
+* **Unittest (Open Source)**
+
+  * **Purpose:** Standard Python testing framework
+
+  * **Notes:** Used for unit tests and integration tests.  
+* **Coverage (Open Source)**  
+  * **Purpose:** Provides code coverage metrics to ensure our tests thoroughly exercise the codebase.  
+* **Black (Open Source)**
+
+  * **Purpose:** Automated code formatting
+
+  * **Notes:** Ensures style consistency for Python code.
+
+---
+
+## **6\. Architecture Summary**
+
+Overall, the system is designed around a **RESTful** architecture with a **React** front end and **Flask** back end:
+
+* **Presentation Layer (View):**
+
+  * React SPA
+
+  * State management via Redux, styling with Material UI and bootstrap, and custom design systems.
+
+* **Controller Layer (Flask):**
+
+  * Defines REST endpoints.
+
+  * Uses Marshmallow for serialization and JWT for authentication.
+
+* **Service/Manager Layer:**
+
+  * Encapsulates business logic (e.g., DonorManager, FundraiserManager, AgreementManager).
+
+  * Coordinates transactions, background tasks (via Celery), and external API calls.
+
+* **Data Access Layer (Model):**
+
+  * SQLAlchemy ORM with PostgreSQL/Aurora as the primary database.
+
+  * Migrations via Alembic/Flask-Migrate.
+
+  * Version tracking through SQLAlchemy-Continuum.
+
+* **Cross-Cutting Concerns:**
+
+  * **Security/Authentication**: Flask-JWT-Extended, AWS Secrets Manager, Python3-SAML.
+
+  * **Logging/Monitoring**: Python logging, CloudWatch, Watchtower.
+
+  * **Feature Flags**: For conditional feature rollouts.
+
+  * **Background Processing**: Celery \+ Redis for asynchronous tasks.
+
+This approach ensures loose coupling and scalability. The system can handle high-throughput workloads with Celery, scale horizontally with Docker containers, and integrate seamlessly with AWS for storage, monitoring, and serverless compute.
+
+---
+

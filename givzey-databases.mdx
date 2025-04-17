@@ -1,0 +1,39 @@
+### **Givzey Databases**
+
+[View the diagram](https://www.mermaidchart.com/app/projects/1891360b-2378-46a7-8ea9-3dc881a2f32c/diagrams/0c171e5b-26ab-4b30-97c7-bff411634416/version/v0.1/edit)
+
+1. **Production Database Clusters**:  
+   * **Version2 Production**: Running Aurora PostgreSQL   
+     * Primary instance in us-east-1c  
+     * Replica instance in us-east-1d  
+   * **Givzey Production**: Running Aurora PostgreSQL  
+     * Primary instance in us-east-1b  
+     * Replica instance in us-east-1d  
+   * **FTP Service**: Running Aurora PostgreSQL   
+     * Primary instance in us-east-1b  
+     * Replica instance in us-east-1d  
+2. **Development Clusters**:  
+   * **Version2 Development**: Running Aurora PostgreSQL  
+     * Primary instance in us-east-1c  
+     * Replica instance in us-east-1d  
+   * **Givzey Development**: Running Aurora PostgreSQL   
+     * Single primary instance in us-east-1d
+
+### **S3 Data Storage**
+
+The diagram also shows various S3 buckets organized into categories:
+
+1. **Database Snapshots & Exports**:  
+   * givzey-db-snapshot: For database exports and backups  
+   * version2-dev-db: For Version2 database files  
+2. **Data Transfer**:  
+   * givzey-sftp-record-transfer: For client data transfers  
+   * version2-ai: For customer data transfers  
+   * version2-ai-dev: For development data  
+3. **Application Assets**:  
+   * givzey-assets: For static assets  
+   * givzey-dev: For development assets  
+4. **Knowledge Bases**:  
+   * version2-kb-organization  
+   * version2-ses-email-forwarding
+

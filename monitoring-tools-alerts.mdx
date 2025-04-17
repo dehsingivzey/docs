@@ -1,0 +1,132 @@
+# **Monitoring Tools and Alerts**
+
+## Monitoring Tools in Use
+
+### 1\. Amazon CloudWatch
+
+* Primary monitoring service for infrastructure and application metrics  
+* Configured for all critical services including EC2, RDS Aurora clusters, and application components  
+* Key metrics being monitored:  
+* EC2 instance CPU utilization  
+* RDS database metrics (ReadLatency observed)  
+* Instance health checks
+
+### 2\. AWS CloudTrail
+
+* Activity monitoring and audit logging via "AnalyzerCloudTrail"  
+* Configuration:  
+* Multi-region trail enabled (IsMultiRegionTrail: True)  
+* Global service events included (IncludeGlobalServiceEvents: True)  
+* Log file validation enabled (LogFileValidationEnabled: True)  
+* S3 bucket for logs: 033030386697-cloudtrail-logs-access-analyzer-us-east-1
+
+### 3\. Amazon GuardDuty
+
+* Security monitoring and threat detection service  
+* Detector ID: 18ca5478aa6e0491f9502ae3ce2512ec  
+* Integrated with SNS for alerts
+
+### 4\. Amazon SNS (Simple Notification Service)
+
+* Alert notification system with the following topics:  
+* EC2HighCPUAlerts  
+* Givzey-Health-Alerts-dev-us-east-1  
+* Givzey-Health-Alerts-prod-us-east-1  
+* Givzey-Health-Alerts-staging-us-east-1  
+* GivzeyMonitoring  
+* GuardDuty-Alerts-dev-us-east-1  
+* GuardDuty-Alerts-us-east-1  
+* GuardDuty-Notifications
+
+## Alert Thresholds and Configurations
+
+### 1\. EC2 Instance Monitoring
+
+* CPU Utilization Threshold: 80% (CPU-Utilization-i-0813ad2c727ec4750)  
+* Evaluation Period: 2 consecutive periods  
+* Period: 300 seconds (5 minutes)  
+* Statistic: Average  
+* Comparison Operator: GreaterThanThreshold
+
+### 2\. Database Monitoring
+
+* RDS Aurora clusters with monitoring metrics for:  
+* ReadLatency  
+* Multiple database instances across various availability zones are monitored
+
+### 3\. Security Monitoring
+
+* GuardDuty configured to detect:  
+* Unusual API calls  
+* Potentially unauthorized deployments  
+* Suspicious network activity  
+* Notifications sent to both email and SMS endpoints
+
+## Alert Notification Channels
+
+### 1\. Email Notifications
+
+* Primary contact: it@givzey.com  
+* Subscribed to:  
+* GuardDuty-Alerts-dev-us-east-1  
+* GuardDuty-Alerts-us-east-1  
+* Givzey-Health-Alerts-staging-us-east-1  
+* Givzey-Health-Alerts-dev-us-east-1  
+* Secondary contact: jon@givzey.com  
+* Subscribed to:  
+* GivzeyMonitoring  
+* Email forwarding alerts
+
+### 2\. SMS Notifications
+
+* Emergency contact: \+14133742964  
+* Subscribed to:  
+* GuardDuty-Alerts-dev-us-east-1  
+* GuardDuty-Alerts-us-east-1
+
+## Incident Management Process
+
+Based on the observed alerting infrastructure, here's an overview of your likely incident management process:
+
+### 1\. Alert Detection and Notification
+
+* CloudWatch detects metrics exceeding thresholds or GuardDuty identifies security concerns  
+* SNS topics route notifications to appropriate channels:  
+* Email notifications to IT team (it@givzey.com)  
+* SMS alerts for critical issues (+14133742964)  
+* Environment-specific topics (dev/staging/prod) ensure proper routing
+
+### 2\. Triage and Escalation
+
+* Multiple notification channels suggest a tiered response approach:  
+* Level 1: Email notifications for standard alerts  
+* Level 2: SMS notifications for urgent/critical issues  
+* Environment-specific alerts (dev vs. prod) likely have different response SLAs
+
+### 3\. Investigation Tools
+
+* CloudTrail logs stored in S3 (033030386697-cloudtrail-logs-access-analyzer-us-east-1)  
+* CloudWatch metrics and logs for performance analysis  
+* GuardDuty findings for security incidents
+
+### 4\. Response and Resolution
+
+* Separate notification topics for different environments facilitate targeted responses  
+* Monitoring across multiple availability zones enables failover decision-making
+
+## Monitoring Coverage
+
+The current monitoring setup provides coverage across:
+
+1. Infrastructure Layer  
+* EC2 instance health and performance  
+* RDS database performance metrics  
+* Security threats via GuardDuty  
+1. Environment Segmentation  
+* Production monitoring (Givzey-Health-Alerts-prod-us-east-1)  
+* Staging monitoring (Givzey-Health-Alerts-staging-us-east-1)  
+* Development monitoring (Givzey-Health-Alerts-dev-us-east-1)  
+1. Security Monitoring  
+* GuardDuty for threat detection  
+* CloudTrail for audit logging
+

@@ -1,0 +1,106 @@
+## Hosting/Data Center Overview
+
+## [View Diagram](https://www.mermaidchart.com/raw/b779ad60-e5bf-4fb0-b8f4-7dab802d7739?theme=light&version=v0.1&format=svg)
+
+## Production Environments
+
+### AWS Region: us-east-1 (North Virginia)
+
+#### **Go-to-Market Applications (Customer-facing)**
+
+Givzey Application \- Production
+
+* Availability Zones:  
+* us-east-1d (primary)  
+* us-east-1b (secondary)  
+* Web Tier:  
+* givzey-production-web-d (us-east-1d)  
+* Application Tier:  
+* production-codebase-d (us-east-1d)  
+* Database Tier:  
+* Givzey-production-rr-b (us-east-1b, Aurora PostgreSQL)
+
+Version2 Application \- Production
+
+* Availability Zones:  
+* us-east-1a (primary)  
+* Web Tier:  
+* version2-production-web (us-east-1a, subnet-07e278c2682749217)  
+* Application Tier:  
+* version2-codebase-production-a (us-east-1a, subnet-0c719d2607b290d2e)  
+* Database Tier:  
+* version2-prod-clstr-instance-1 (us-east-1c, Aurora PostgreSQL)
+
+#### **Back-Office/Enterprise Systems**
+
+File Transfer System
+
+* FTPS Service:  
+* givzey-ftp-app (us-east-1a)  
+* Database:  
+* ftp-cluster-instance-1 (us-east-1b, Aurora PostgreSQL)  
+* ftp-cluster-instance-1-us-east-1d (us-east-1d, Aurora PostgreSQL)
+
+## 
+
+## Pre-Production Environments
+
+### AWS Region: us-east-1 (North Virginia)
+
+#### **Development Environment**
+
+Givzey Application \- Development
+
+* Availability Zones:  
+* us-east-1b (primary)  
+* us-east-1d (secondary)  
+* Web Tier:  
+* givzey-dev-web (us-east-1b, subnet-0fcc23de0638c5937)  
+* givzey-web-demo-b (us-east-1b, subnet-0fcc23de0638c5937)  
+* dev-web-b (us-east-1b, subnet-0fcc23de0638c5937)  
+* Application Tier:  
+* givzey-codebase-dev-b (us-east-1d, subnet-02620eb41574031d6)  
+* dev-codebase-b (us-east-1b, subnet-02a24c1b8d9403624)  
+* givzey-dev-server-1 (us-east-1b, subnet-02a24c1b8d9403624)  
+* givzey-dev-server-2 (us-east-1b, subnet-02a24c1b8d9403624)  
+* Database Tier:  
+* development-instance-1 (us-east-1d, Aurora PostgreSQL)
+
+Version2 Application \- Development
+
+* Availability Zones:  
+* us-east-1a (primary)  
+* Web Tier:  
+* version2-web-dev (us-east-1a, subnet-07e278c2682749217)  
+* Application Tier:  
+* version2-codebase-dev (us-east-1a, subnet-0c719d2607b290d2e)  
+* Database Tier:  
+* version2-dev-instance-1 (us-east-1c, Aurora PostgreSQL)  
+* version2-dev-instance-1-us-east-1d (us-east-1d, Aurora PostgreSQL)
+
+#### **File Transfer Development**
+
+* ftp-dev (us-east-1a, subnet-0664291c7c173eaff)
+
+#### **CI/CD Test Environment**
+
+* Multiple gvz-cicd-test instances (us-east-1b, subnet-0fcc23de0638c5937)  
+* gvz-cicd-dev (us-east-1b, subnet-0fcc23de0638c5937)
+
+#### **Test Environments**
+
+* Multiple test instances with "test-" prefix across us-east-1b and us-east-1d availability zones
+
+## Access Infrastructure
+
+Bastion Hosts (Secure Access Points)
+
+* givzey-bastion   
+* version2-bastion  
+* gvzbastionhost 
+
+Load Balancers
+
+* Application Load Balancer "Givzey" (internet-facing, multi-AZ deployment)
+
+All environments are hosted in AWS us-east-1 region (North Virginia) across multiple availability zones (primarily us-east-1a, us-east-1b, us-east-1c, and us-east-1d) for high availability and disaster recovery capabilities.
